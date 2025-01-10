@@ -5,11 +5,11 @@ from .models import Category
 # Customize Course model in the Django admin
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ["name", "price", "description", "teacher", "category", "created_at"]
+    list_display = ["name", "price", "description", "teacher", "category", "max_students", "created_at"]
     list_filter = ["teacher", "category"]
     search_fields = ["name", "description"]
     readonly_fields = ["created_at", "updated_at"]
-    fields = ["name", "description", "price", "image", "teacher", "category", "created_at", "updated_at"]
+    fields = ["name", "description", "price", "image", "teacher", "category", "max_students", "created_at", "updated_at"]
 
 # Customize Category model in the Django admin (Optional)
 @admin.register(Category)

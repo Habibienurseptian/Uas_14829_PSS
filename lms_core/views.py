@@ -223,3 +223,25 @@ def delete_category(request, category_id):
         return JsonResponse({"success": f"Category '{category.name}' deleted!"}, status=200)
     except Category.DoesNotExist:
         return JsonResponse({"error": "Category not found or you do not have permission to delete it."}, status=404)
+    
+@login_required
+def enroll_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    # Check if the course is full by comparing the number of enrolled students with the limit
+    if course.get_member_count() >= course.max_students:
+        messages.error(request, "This course has reached the maximum number of students.")
+        return redirect('course_detail', course_id=course_id)
+
+    # Enroll the student if not already enrolled
+    if not CourseMember.objects.filter(course_id=course, user_id=request.user).exists():
+        CourseMember.objects.create(course_id=course, user_id=request.user)
+        messages.success(request, "You have successfully enrolled in the course.")
+    else:
+        messages.warning(request, "You are already enrolled in this course.")
+
+    return redirect('course_detail', course_id=course_id)
+
+def course_detail(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    return render(request, 'course_detail.html', {'course': course})

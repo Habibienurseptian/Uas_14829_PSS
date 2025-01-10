@@ -3,57 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate of Completion</title>
+    <title>Course Completion Certificate</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #f0f0f0;
-        }
-        .certificate {
-            width: 80%;
-            max-width: 900px;
-            padding: 50px;
-            border: 5px solid #333;
-            border-radius: 10px;
+            font-family: 'Arial', sans-serif;
             text-align: center;
-            background-color: white;
+            background-color: #f4f4f9;
         }
+
+        .certificate {
+            background: #fff;
+            padding: 50px;
+            border: 5px solid #3498db;
+            display: inline-block;
+            margin-top: 50px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
         .certificate h1 {
             font-size: 2.5em;
-            margin-bottom: 20px;
+            color: #3498db;
         }
+
         .certificate p {
             font-size: 1.2em;
+            color: #555;
         }
-        .certificate .name {
-            font-weight: bold;
+
+        .certificate .student-name {
             font-size: 1.5em;
+            font-weight: bold;
+            color: #2ecc71;
+        }
+
+        .certificate .course-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .certificate .completion-date {
+            font-size: 1.1em;
+            color: #34495e;
             margin-top: 20px;
         }
-        .certificate .completion-date {
-            margin-top: 40px;
-            font-size: 1.1em;
-        }
-        .certificate .course-name {
-            font-size: 1.3em;
-            font-weight: bold;
+
+        .signature {
+            margin-top: 50px;
+            font-size: 1.2em;
+            color: #3498db;
         }
     </style>
 </head>
 <body>
+
     <div class="certificate">
         <h1>Certificate of Completion</h1>
         <p>This is to certify that</p>
-        <p class="name">{{ student.username }}</p>
+        <p class="student-name">{{ student.username }}</p>
         <p>has successfully completed the course</p>
         <p class="course-name">{{ course.name }}</p>
-        <p class="completion-date">on {{ completion_date|date:"F j, Y" }}</p>
+        <p class="completion-date">Completed on: {{ completion_date }}</p>
+
+        <div class="signature">
+            <p>Instructor's Signature</p>
+            <p>{{ course.teacher.username }}</p> <!-- Displaying instructor's name -->
+        </div>
     </div>
+
 </body>
 </html>

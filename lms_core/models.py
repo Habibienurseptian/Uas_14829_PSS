@@ -27,6 +27,9 @@ class Course(models.Model):
     category = models.ForeignKey(Category, verbose_name="Category", on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Add max_students to limit course enrollment
+    max_students = models.PositiveIntegerField("Max Students", default=30)
 
     class Meta:
         verbose_name = "Course"
@@ -34,16 +37,21 @@ class Course(models.Model):
 
     def __str__(self) -> str:
         return self.name + " : " + str(self.price)
-    
+
     def get_member_count(self):
         """Returns the number of members enrolled in the course."""
         return CourseMember.objects.filter(course_id=self).count()
+
+    def is_full(self):
+        """Checks if the course has reached the maximum number of students."""
+        return self.get_member_count() >= self.max_students
+
 
 ROLE_OPTIONS = [('std', "Siswa"), ('ast', "Asisten")]
 
 # Course Member model
 class CourseMember(models.Model):
-    course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT)
+    course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT, related_name="members")
     user_id = models.ForeignKey(User, verbose_name="siswa", on_delete=models.RESTRICT)
     roles = models.CharField("peran", max_length=3, choices=ROLE_OPTIONS, default='std')
     is_completed = models.BooleanField("Completed", default=False)
@@ -60,18 +68,31 @@ class CourseMember(models.Model):
 
     @classmethod
     def bulk_enroll(cls, course, student_users):
+        if course.is_full():
+            raise IntegrityError("This course has already reached the maximum number of students.")
+
         enrollments = []
         for student in student_users:
             enrollments.append(cls(course_id=course, user_id=student))
 
         try:
             cls.objects.bulk_create(enrollments)
-        except IntegrityError:
-            pass
+        except IntegrityError as e:
+            raise IntegrityError(str(e))
+
     def save(self, *args, **kwargs):
+        course = self.course_id
+
+        # Check if the course is full before saving the enrollment
+        if course.is_full():
+            raise IntegrityError("This course has already reached the maximum number of students.")
+
+        # Ensure that a student is not already enrolled
         if CourseMember.objects.filter(course_id=self.course_id, user_id=self.user_id).exists():
             raise IntegrityError("Student is already enrolled in this course.")
+        
         super().save(*args, **kwargs)
+
 
 
 # Course Content model
@@ -128,3 +149,4 @@ class ContentCompletion(models.Model):
 
     def __str__(self):
         return f"{self.student} completed {self.content.name}"
+
