@@ -51,7 +51,7 @@ ROLE_OPTIONS = [('std', "Siswa"), ('ast', "Asisten")]
 
 # Course Member model
 class CourseMember(models.Model):
-    course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT, related_name="members")
+    course_id = models.ForeignKey(Course, verbose_name="matkul", on_delete=models.RESTRICT)
     user_id = models.ForeignKey(User, verbose_name="siswa", on_delete=models.RESTRICT)
     roles = models.CharField("peran", max_length=3, choices=ROLE_OPTIONS, default='std')
     is_completed = models.BooleanField("Completed", default=False)
