@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Completion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f0f0f0;
+        }
+        .certificate {
+            width: 80%;
+            max-width: 900px;
+            padding: 50px;
+            border: 5px solid #333;
+            border-radius: 10px;
+            text-align: center;
+            background-color: white;
+        }
+        .certificate h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .certificate p {
+            font-size: 1.2em;
+        }
+        .certificate .name {
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        .certificate .completion-date {
+            margin-top: 40px;
+            font-size: 1.1em;
+        }
+        .certificate .course-name {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate">
+        <h1>Certificate of Completion</h1>
+        <p>This is to certify that</p>
+        <p class="name">{{ student.username }}</p>
+        <p>has successfully completed the course</p>
+        <p class="course-name">{{ course.name }}</p>
+        <p class="completion-date">on {{ completion_date|date:"F j, Y" }}</p>
+    </div>
+</body>
+</html>

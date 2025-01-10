@@ -1,0 +1,27 @@
+<div
+  style="max-width: 400px; margin: 0 auto; padding: 20px; text-align: center"
+>
+  <h3>Batch Enrollment</h3>
+  <form method="POST">
+    {% csrf_token %}
+    <textarea
+      name="student_usernames"
+      rows="6"
+      cols="30"
+      placeholder="Enter each username on a new line"
+      style="width: 100%; padding: 10px; font-size: 14px; margin-bottom: 15px"
+    ></textarea>
+    <br />
+    <button type="submit" style="padding: 10px 20px; font-size: 16px">
+      Enroll
+    </button>
+  </form>
+
+  {% if messages %}
+  <div style="margin-top: 20px">
+    {% for message in messages %}
+    <p style="color: green; font-size: 14px">{{ message }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
