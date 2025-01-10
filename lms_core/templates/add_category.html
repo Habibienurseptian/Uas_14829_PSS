@@ -1,11 +1,14 @@
+{% if user.is_authenticated %} {% else %}
+<p>You need to be logged in to create a category.</p>
+{% endif %}
+
 <form method="POST">
-    {% csrf_token %}
-    <label for="name">Category Name:</label>
-    <input type="text" name="name" required><br><br>
-    
-    <label for="description">Category Description:</label>
-    <textarea name="description"></textarea><br><br>
-  
-    <button type="submit">Add Category</button>
-  </form>
-  
+  {% csrf_token %}
+  <label for="name">Category Name:</label>
+  <input type="text" name="name" required /><br /><br />
+
+  <label for="description">Category Description:</label>
+  <textarea name="description"></textarea><br /><br />
+
+  <button type="submit">Add Category</button>
+</form>

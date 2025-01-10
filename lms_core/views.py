@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect,  get_object_or_404, HttpResponse
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.core import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -7,8 +7,7 @@ from django.contrib import messages
 from .forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import Course, CourseMember, CourseContent, ContentCompletion
-from .models import Category
+from .models import Course, CourseMember, CourseContent, ContentCompletion, Category
 
 
 def index(request):
@@ -129,14 +128,18 @@ def course_analytics(request, course_id):
     
 @login_required
 def certificate(request, course_id):
-    # Check if the student is enrolled in the course and has completed it
-    course_member = get_object_or_404(CourseMember, course_id=course_id, user_id=request.user)
-    
+    course = get_object_or_404(Course, id=course_id)
+
+    # Check if the student is enrolled in the course
+    try:
+        course_member = CourseMember.objects.get(course_id=course, user_id=request.user)
+    except CourseMember.DoesNotExist:
+        raise Http404("You are not enrolled in this course.")
+
+    # Check if the course is completed
     if not course_member.is_completed:
-        # If the course is not completed, redirect or show an error
         return render(request, "course_not_completed.html")
 
-    # If the course is completed, display the certificate
     return render(request, "certificate.html", {
         "course": course_member.course_id,
         "student": course_member.user_id,
@@ -189,13 +192,19 @@ def delete_completion(request, content_id):
     except ContentCompletion.DoesNotExist:
         return JsonResponse({"error": "Content not marked as completed."}, status=400)
     
+@login_required
 def add_category(request):
+    if not request.user.is_authenticated:
+        return redirect('login')  # Or use the login URL for your application
+
+    # Continue with category creation if user is logged in
     if request.method == "POST":
         name = request.POST.get("name")
         description = request.POST.get("description")
-
         category = Category.objects.create(
-            name=name, description=description, teacher=request.user
+            name=name,
+            description=description,
+            teacher=request.user
         )
         return JsonResponse({"success": f"Category '{category.name}' added!"}, status=201)
     
