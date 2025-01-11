@@ -17,4 +17,8 @@ class RegistrationForm(forms.ModelForm):
         return password
     
 class CompletionForm(forms.Form):
-    content_id = forms.ModelChoiceField(queryset=CourseContent.objects.all(), label="Pilih Konten", widget=forms.Select)
+    content_id = forms.ModelChoiceField(
+        queryset=CourseContent.objects.all().order_by('course_id__name'),  # Sorting by course's name in ascending order
+        label="Pilih Konten",
+        widget=forms.Select
+    )

@@ -267,11 +267,16 @@ def mark_content_as_completed(request, course_id):
     # Ambil semua konten dalam course untuk ditampilkan
     course_content = CourseContent.objects.filter(course_id=course_id)
     
+    # Ambil informasi course terkait untuk ditampilkan (opsional)
+    course = Course.objects.get(id=course_id)
+    
     return render(request, 'mark_content_completed.html', {
         'form': form,
         'course_content': course_content,
-        'course_id': course_id
+        'course_id': course_id,
+        'course': course,  # Menambahkan informasi course ke template
     })
+
 
 @login_required
 @require_POST
