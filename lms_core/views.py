@@ -4,7 +4,7 @@ from django.core import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from .forms import RegistrationForm
+from .forms import CompletionForm, RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .models import Course, CourseMember, Category, CompletionTracking, CourseContent
@@ -202,22 +202,6 @@ def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     return render(request, 'course_detail.html', {'course': course})
 
-
-@login_required
-@require_POST
-def add_completion(request, content_id):
-    try:
-        content = CourseContent.objects.get(id=content_id)
-        # Ensure the student is enrolled in the course
-        if not CourseMember.objects.filter(course_id=content.course_id, user_id=request.user).exists():
-            return JsonResponse({"error": "You are not enrolled in this course."}, status=400)
-        
-        # Mark content as completed
-        CompletionTracking.objects.create(student=request.user, course_content=content)
-        return JsonResponse({"message": "Content marked as completed."}, status=200)
-    
-    except CourseContent.DoesNotExist:
-        return JsonResponse({"error": "Content not found."}, status=404)
     
 @login_required
 def show_completion(request, course_id):
@@ -230,7 +214,44 @@ def show_completion(request, course_id):
     completed_content = CompletionTracking.objects.filter(student=request.user, course_content__course_id=course)
     completed_content_list = [{"content_id": completion.course_content.id, "content_name": completion.course_content.name} for completion in completed_content]
 
-    return JsonResponse({"completed_content": completed_content_list}, status=200)
+    return render(request, "show_completion.html", {
+        "course": course,
+        "completed_content": completed_content_list
+    })
+
+
+@login_required
+def mark_content_as_completed(request, course_id):
+    # Pastikan siswa terdaftar di course
+    if not CourseMember.objects.filter(course_id=course_id, user_id=request.user).exists():
+        messages.error(request, "Anda tidak terdaftar di kursus ini.")
+        return redirect('home')  # Ganti dengan halaman yang sesuai
+
+    if request.method == "POST":
+        form = CompletionForm(request.POST)
+        if form.is_valid():
+            content = form.cleaned_data['content_id']
+            
+            # Periksa apakah konten tersebut sudah selesai
+            if CompletionTracking.objects.filter(student=request.user, course_content=content).exists():
+                messages.error(request, "Konten ini sudah Anda tandai sebagai selesai.")
+                return redirect('mark_content_as_completed', course_id=course_id)
+            
+            # Tandai konten sebagai selesai
+            CompletionTracking.objects.create(student=request.user, course_content=content)
+            messages.success(request, "Konten berhasil ditandai sebagai selesai.")
+            return redirect('mark_content_as_completed', course_id=course_id)
+    else:
+        form = CompletionForm()
+
+    # Ambil semua konten dalam course untuk ditampilkan
+    course_content = CourseContent.objects.filter(course_id=course_id)
+    
+    return render(request, 'mark_content_completed.html', {
+        'form': form,
+        'course_content': course_content,
+        'course_id': course_id
+    })
 
 @login_required
 @require_POST
@@ -242,7 +263,8 @@ def delete_completion(request, content_id):
         completion = CompletionTracking.objects.get(student=request.user, course_content=content)
         completion.delete()
         
-        return JsonResponse({"message": "Completion status deleted."}, status=200)
+        # Redirect back to the completion page
+        return redirect('show_completion', course_id=content.course_id.id)
     
     except CourseContent.DoesNotExist:
         return JsonResponse({"error": "Content not found."}, status=404)

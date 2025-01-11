@@ -71,7 +71,7 @@ with open(filepath + 'comments.json', encoding='utf-8') as jsonfile:
             row['user_id'] = randint(5, 40)
         if not Comment.objects.filter(pk=num + 1).exists():
             obj_create.append(Comment(content_id=CourseContent.objects.get(pk=int(row['content_id'])), 
-                                      member_id=User.objects.get(pk=int(row['user_id'])), 
+                                      user_id=User.objects.get(pk=int(row['user_id'])), 
                                       comment=row['comment']))
     Comment.objects.bulk_create(obj_create)
 

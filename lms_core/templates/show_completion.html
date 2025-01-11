@@ -1,0 +1,21 @@
+{% block content %}
+<h2>Completed Content for {{ course.name }}</h2>
+{% if completed_content %}
+<ul>
+  {% for content in completed_content %}
+  <li>
+    {{ content.content_name }}
+    <form
+      method="POST"
+      action="{% url 'delete_completion' content.content_id %}"
+      style="display: inline"
+    >
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Remove Completion</button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No content completed yet.</p>
+{% endif %} {% endblock %}
