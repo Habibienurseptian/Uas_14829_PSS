@@ -126,26 +126,6 @@ def course_analytics(request, course_id):
         "course": course,
         "member_count": member_count,
     })
-    
-@login_required
-def certificate(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-
-    # Check if the student is enrolled in the course
-    try:
-        course_member = CourseMember.objects.get(course_id=course, user_id=request.user)
-    except CourseMember.DoesNotExist:
-        raise Http404("You are not enrolled in this course.")
-
-    # Check if the course is completed
-    if not course_member.is_completed:
-        return render(request, "course_not_completed.html")
-
-    return render(request, "certificate.html", {
-        "course": course_member.course_id,
-        "student": course_member.user_id,
-        "completion_date": course_member.updated_at,  # Date of completion
-    })
 
     
 @login_required
@@ -202,31 +182,71 @@ def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     return render(request, 'course_detail.html', {'course': course})
 
-    
 @login_required
-def show_completion(request, course_id):
+def certificate(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    
-    # Ensure the student is enrolled in the course
-    if not CourseMember.objects.filter(course_id=course, user_id=request.user).exists():
-        return JsonResponse({"error": "You are not enrolled in this course."}, status=400)
 
-    completed_content = CompletionTracking.objects.filter(student=request.user, course_content__course_id=course)
-    completed_content_list = [{"content_id": completion.course_content.id, "content_name": completion.course_content.name} for completion in completed_content]
+    # Cek apakah user terdaftar dalam kursus
+    try:
+        course_member = CourseMember.objects.get(course_id=course, user_id=request.user)
+    except CourseMember.DoesNotExist:
+        raise Http404("You are not enrolled in this course.")
 
-    return render(request, "show_completion.html", {
+    # Ambil semua konten kursus
+    course_content = CourseContent.objects.filter(course_id=course)
+
+    # Cek apakah semua konten telah selesai
+    completed_content_ids = CompletionTracking.objects.filter(
+        student=request.user,
+        course_content__course_id=course
+    ).values_list('course_content_id', flat=True)
+
+    if set(course_content.values_list('id', flat=True)) != set(completed_content_ids):
+        # Jika belum selesai, tampilkan pesan
+        return render(request, "course_not_completed.html", {"course": course})
+
+    # Semua konten selesai, tampilkan sertifikat
+    return render(request, "certificate.html", {
         "course": course,
-        "completed_content": completed_content_list
+        "student": request.user,
+        "completion_date": course_member.updated_at,
     })
 
 
 @login_required
-def mark_content_as_completed(request, course_id):
-    # Pastikan siswa terdaftar di course
-    if not CourseMember.objects.filter(course_id=course_id, user_id=request.user).exists():
-        messages.error(request, "Anda tidak terdaftar di kursus ini.")
-        return redirect('home')  # Ganti dengan halaman yang sesuai
+def show_completion(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
 
+    # Pastikan user terdaftar dalam kursus
+    if not CourseMember.objects.filter(course_id=course, user_id=request.user).exists():
+        return JsonResponse({"error": "You are not enrolled in this course."}, status=400)
+
+    # Ambil daftar konten yang sudah selesai
+    completed_content = CompletionTracking.objects.filter(student=request.user, course_content__course_id=course)
+    completed_content_list = [
+        {"content_id": completion.course_content.id, "content_name": completion.course_content.name}
+        for completion in completed_content
+    ]
+
+    # Hitung jumlah konten selesai dan total konten
+    total_content = CourseContent.objects.filter(course_id=course).count()
+    completed_count = len(completed_content_list)
+
+    # Hitung persentase penyelesaian
+    completion_percentage = (completed_count / total_content * 100) if total_content > 0 else 0
+
+    return render(request, "show_completion.html", {
+        "course": course,
+        "completed_content": completed_content_list,
+        "total_content": total_content,
+        "completed_count": completed_count,
+        "completion_percentage": completion_percentage,
+    })
+
+
+
+@login_required
+def mark_content_as_completed(request, course_id):
     if request.method == "POST":
         form = CompletionForm(request.POST)
         if form.is_valid():

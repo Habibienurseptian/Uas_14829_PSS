@@ -1,21 +1,11 @@
-{% block content %}
-<h2>Completed Content for {{ course.name }}</h2>
-{% if completed_content %}
+<h1>Completion Progress for {{ course.name }}</h1>
+<p>
+  You have completed {{ completed_count }} out of {{ total_content }} contents
+  ({{ completion_percentage }}%).
+</p>
 <ul>
   {% for content in completed_content %}
-  <li>
-    {{ content.content_name }}
-    <form
-      method="POST"
-      action="{% url 'delete_completion' content.content_id %}"
-      style="display: inline"
-    >
-      {% csrf_token %}
-      <button type="submit" class="btn btn-danger">Remove Completion</button>
-    </form>
-  </li>
+  <li>{{ content.content_name }}</li>
   {% endfor %}
 </ul>
-{% else %}
-<p>No content completed yet.</p>
-{% endif %} {% endblock %}
+<a href="{% url 'certificate' course.id %}">Check Certificate</a>

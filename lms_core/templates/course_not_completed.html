@@ -1,13 +1,3 @@
-<!-- course_not_completed.html -->
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Course Not Completed</title>
-  </head>
-  <body>
-    <h1>Kamu belum menyelesaikan mata kuliah ini.</h1>
-    <p>Selesaikan mata kuliah ini untuk mendapatakan sertifikatnya!</p>
-  </body>
-</html>
+<h1>Course Not Completed</h1>
+<p>You need to complete all course contents to get the certificate.</p>
+<a href="{% url 'show_completion' course.id %}">View Your Progress</a>
