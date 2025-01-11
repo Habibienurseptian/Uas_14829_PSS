@@ -1,0 +1,15 @@
+<!-- templates/add_completion.html -->
+{% extends 'base_generic.html' %} {% block content %}
+<h1>Mark Content as Completed</h1>
+
+<form method="POST" action="{% url 'add_completion' content_id=content.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary">Mark as Completed</button>
+</form>
+
+<p>
+  <a href="{% url 'show_completion' course_id=content.course_id.id %}"
+    >View Completed Content</a
+  >
+</p>
+{% endblock %}

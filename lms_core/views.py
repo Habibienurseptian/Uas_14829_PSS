@@ -7,7 +7,8 @@ from django.contrib import messages
 from .forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import Course, CourseMember, CourseContent, ContentCompletion, Category
+from .models import Course, CourseMember, Category, CompletionTracking, CourseContent
+from django.views.decorators.http import require_POST
 
 
 def index(request):
@@ -146,51 +147,6 @@ def certificate(request, course_id):
         "completion_date": course_member.updated_at,  # Date of completion
     })
 
-@login_required
-def add_completion(request, content_id):
-    content = get_object_or_404(CourseContent, id=content_id)
-    
-    # Check if the student is enrolled in the course
-    if not CourseMember.objects.filter(user_id=request.user, course_id=content.course_id).exists():
-        return JsonResponse({"error": "You are not enrolled in this course."}, status=400)
-    
-    # Create a new content completion
-    completion, created = ContentCompletion.objects.get_or_create(
-        student=request.user,
-        content=content
-    )
-    
-    if created:
-        return JsonResponse({"success": "Content marked as completed!"}, status=200)
-    else:
-        return JsonResponse({"info": "Content already marked as completed."}, status=200)
-
-# Show completion tracking
-@login_required
-def show_completions(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    
-    # Ensure the user is enrolled in the course
-    if not CourseMember.objects.filter(user_id=request.user, course_id=course).exists():
-        return JsonResponse({"error": "You are not enrolled in this course."}, status=400)
-    
-    completed_contents = ContentCompletion.objects.filter(student=request.user, content__course_id=course)
-    completed_list = [completion.content.name for completion in completed_contents]
-    
-    return JsonResponse({"completed_contents": completed_list}, status=200)
-
-# Delete completion tracking
-@login_required
-def delete_completion(request, content_id):
-    content = get_object_or_404(CourseContent, id=content_id)
-    
-    # Ensure the user has already completed the content
-    try:
-        completion = ContentCompletion.objects.get(student=request.user, content=content)
-        completion.delete()
-        return JsonResponse({"success": "Content completion status removed."}, status=200)
-    except ContentCompletion.DoesNotExist:
-        return JsonResponse({"error": "Content not marked as completed."}, status=400)
     
 @login_required
 def add_category(request):
@@ -245,3 +201,50 @@ def enroll_course(request, course_id):
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     return render(request, 'course_detail.html', {'course': course})
+
+
+@login_required
+@require_POST
+def add_completion(request, content_id):
+    try:
+        content = CourseContent.objects.get(id=content_id)
+        # Ensure the student is enrolled in the course
+        if not CourseMember.objects.filter(course_id=content.course_id, user_id=request.user).exists():
+            return JsonResponse({"error": "You are not enrolled in this course."}, status=400)
+        
+        # Mark content as completed
+        CompletionTracking.objects.create(student=request.user, course_content=content)
+        return JsonResponse({"message": "Content marked as completed."}, status=200)
+    
+    except CourseContent.DoesNotExist:
+        return JsonResponse({"error": "Content not found."}, status=404)
+    
+@login_required
+def show_completion(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    
+    # Ensure the student is enrolled in the course
+    if not CourseMember.objects.filter(course_id=course, user_id=request.user).exists():
+        return JsonResponse({"error": "You are not enrolled in this course."}, status=400)
+
+    completed_content = CompletionTracking.objects.filter(student=request.user, course_content__course_id=course)
+    completed_content_list = [{"content_id": completion.course_content.id, "content_name": completion.course_content.name} for completion in completed_content]
+
+    return JsonResponse({"completed_content": completed_content_list}, status=200)
+
+@login_required
+@require_POST
+def delete_completion(request, content_id):
+    try:
+        content = CourseContent.objects.get(id=content_id)
+        
+        # Ensure the student has completed the content
+        completion = CompletionTracking.objects.get(student=request.user, course_content=content)
+        completion.delete()
+        
+        return JsonResponse({"message": "Completion status deleted."}, status=200)
+    
+    except CourseContent.DoesNotExist:
+        return JsonResponse({"error": "Content not found."}, status=404)
+    except CompletionTracking.DoesNotExist:
+        return JsonResponse({"error": "Completion status not found."}, status=404)

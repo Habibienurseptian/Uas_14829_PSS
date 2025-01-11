@@ -61,38 +61,24 @@ class CourseMember(models.Model):
     class Meta:
         verbose_name = "Subscriber Matkul"
         verbose_name_plural = "Subscriber Matkul"
-        unique_together = ['course_id', 'user_id'] 
 
     def __str__(self) -> str:
         return f"{self.course_id} : {self.user_id}"
 
     @classmethod
     def bulk_enroll(cls, course, student_users):
-        if course.is_full():
-            raise IntegrityError("This course has already reached the maximum number of students.")
-
         enrollments = []
         for student in student_users:
             enrollments.append(cls(course_id=course, user_id=student))
 
         try:
             cls.objects.bulk_create(enrollments)
-        except IntegrityError as e:
-            raise IntegrityError(str(e))
-
+        except IntegrityError:
+            pass
     def save(self, *args, **kwargs):
-        course = self.course_id
-
-        # Check if the course is full before saving the enrollment
-        if course.is_full():
-            raise IntegrityError("This course has already reached the maximum number of students.")
-
-        # Ensure that a student is not already enrolled
         if CourseMember.objects.filter(course_id=self.course_id, user_id=self.user_id).exists():
             raise IntegrityError("Student is already enrolled in this course.")
-        
         super().save(*args, **kwargs)
-
 
 
 # Course Content model
@@ -119,7 +105,7 @@ class Comment(models.Model):
     content_id = models.ForeignKey(CourseContent, verbose_name="konten", on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, verbose_name="pengguna", on_delete=models.CASCADE)
     comment = models.TextField('komentar')
-    is_approved = models.BooleanField("Approved for Display", default=False)  # Moderation flag
+    is_approved = models.BooleanField("Approved for Display", default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -135,18 +121,15 @@ class Comment(models.Model):
         """Return only approved comments."""
         return cls.objects.filter(is_approved=True)
 
-
-# Content Completion model
-class ContentCompletion(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_contents")
-    content = models.ForeignKey(CourseContent, on_delete=models.CASCADE, related_name="content_completions")
-    completed_at = models.DateTimeField(auto_now_add=True)
+class CompletionTracking(models.Model):
+    student = models.ForeignKey(User, verbose_name="Siswa", on_delete=models.CASCADE)
+    course_content = models.ForeignKey(CourseContent, verbose_name="Konten Matkul", on_delete=models.CASCADE)
+    completed_at = models.DateTimeField("Tanggal Penyelesaian", auto_now_add=True)
 
     class Meta:
-        verbose_name = "Content Completion"
-        verbose_name_plural = "Content Completions"
-        unique_together = ['student', 'content']
+        verbose_name = "Completion Tracking"
+        verbose_name_plural = "Completion Trackings"
+        unique_together = ['student', 'course_content']  # Ensure one student cannot complete the same content twice
 
-    def __str__(self):
-        return f"{self.student} completed {self.content.name}"
-
+    def __str__(self) -> str:
+        return f"{self.student} - {self.course_content.name}"
