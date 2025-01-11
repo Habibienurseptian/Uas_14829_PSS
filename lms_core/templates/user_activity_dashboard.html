@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Activity Dashboard</title>
-</head>
-<body>
-    <h1>User Activity Dashboard</h1>
-    <p>Welcome, {{ request.user.username }}!</p>
-    <p>Number of courses you are enrolled in as a student: {{ student_courses_count }}</p>
-</body>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Aktivitas Pengguna</title>
+  </head>
+  <body>
+    <h1>Dashboard Aktivitas Pengguna</h1>
+    <p>Selamat datang, {{ request.user.username }}!</p>
+    <p>
+      Jumlah kursus yang Anda ikuti sebagai siswa: {{ student_courses_count }}
+    </p>
+  </body>
 </html>

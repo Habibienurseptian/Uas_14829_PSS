@@ -1,75 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Completion Certificate</title>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sertifikat Penyelesaian Kursus</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            background-color: #f4f4f9;
-        }
+      body {
+        font-family: "Arial", sans-serif;
+        text-align: center;
+        background-color: #f4f4f9;
+        padding: 30px;
+      }
 
-        .certificate {
-            background: #fff;
-            padding: 50px;
-            border: 5px solid #3498db;
-            display: inline-block;
-            margin-top: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+      .certificate {
+        background: #fff;
+        padding: 50px;
+        border: 5px solid #3498db;
+        display: inline-block;
+        margin-top: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 700px;
+        width: 100%;
+        border-radius: 10px;
+      }
 
-        .certificate h1 {
-            font-size: 2.5em;
-            color: #3498db;
-        }
+      .certificate h1 {
+        font-size: 3em;
+        color: #3498db;
+        margin-bottom: 20px;
+      }
 
-        .certificate p {
-            font-size: 1.2em;
-            color: #555;
-        }
+      .certificate p {
+        font-size: 1.2em;
+        color: #555;
+        line-height: 1.6;
+      }
 
-        .certificate .student-name {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #2ecc71;
-        }
+      .certificate .student-name {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #2ecc71;
+        margin-top: 10px;
+      }
 
-        .certificate .course-name {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #e74c3c;
-        }
+      .certificate .course-name {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-top: 10px;
+      }
 
-        .certificate .completion-date {
-            font-size: 1.1em;
-            color: #34495e;
-            margin-top: 20px;
-        }
+      .certificate .completion-date {
+        font-size: 1.1em;
+        color: #34495e;
+        margin-top: 20px;
+      }
 
-        .signature {
-            margin-top: 50px;
-            font-size: 1.2em;
-            color: #3498db;
-        }
+      .signature {
+        margin-top: 50px;
+        font-size: 1.2em;
+        color: #3498db;
+      }
+
+      .signature p {
+        margin-bottom: 5px;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #7f8c8d;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="certificate">
-        <h1>Certificate of Completion</h1>
-        <p>This is to certify that</p>
-        <p class="student-name">{{ student.username }}</p>
-        <p>has successfully completed the course</p>
-        <p class="course-name">{{ course.name }}</p>
-        <p class="completion-date">Completed on: {{ completion_date }}</p>
+      <h1>Sertifikat Penyelesaian Kursus</h1>
+      <p>Ini adalah untuk mensertifikasi bahwa</p>
+      <p class="student-name">{{ student.username }}</p>
+      <p>telah berhasil menyelesaikan kursus</p>
+      <p class="course-name">{{ course.name }}</p>
+      <p class="completion-date">Selesai pada: {{ completion_date }}</p>
 
-        <div class="signature">
-            <p>Instructor's Signature</p>
-            <p>{{ course.teacher.username }}</p>
-        </div>
+      <div class="signature">
+        <p>Pengajar</p>
+        <p>{{ course.teacher.username }}</p>
+      </div>
     </div>
 
-</body>
+    <div class="footer">
+      <p>
+        &copy; 2025 Semua hak dilindungi. Kursus ini disediakan oleh [One
+        Piece].
+      </p>
+    </div>
+  </body>
 </html>

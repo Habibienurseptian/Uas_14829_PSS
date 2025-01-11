@@ -1,6 +1,6 @@
-<h1>Completion Progress for {{ course.name }}</h1>
+<h1>Progres Penyelesaian untuk {{ course.name }}</h1>
 <p>
-  You have completed {{ completed_count }} out of {{ total_content }} contents
+  Anda telah menyelesaikan {{ completed_count }} dari {{ total_content }} konten
   ({{ completion_percentage }}%).
 </p>
 <ul>
@@ -8,4 +8,4 @@
   <li>{{ content.content_name }}</li>
   {% endfor %}
 </ul>
-<a href="{% url 'certificate' course.id %}">Check Certificate</a>
+<a href="{% url 'certificate' course.id %}">Cek Sertifikat</a>

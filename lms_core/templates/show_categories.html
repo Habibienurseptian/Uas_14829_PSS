@@ -1,14 +1,14 @@
-<h2>Your Categories</h2>
+<h2>Kategori Anda</h2>
 <ul>
   {% for category in categories %}
   <li>
     {{ category.name }} - {{ category.description }}
     <a
       href="{% url 'delete_category' category.id %}"
-      onclick="return confirm('Are you sure?')"
-      >Delete</a
+      onclick="return confirm('Apakah Anda yakin?')"
+      >Hapus</a
     >
   </li>
   {% endfor %}
 </ul>
-<a href="{% url 'add_category' %}">Add New Category</a>
+<a href="{% url 'add_category' %}">Tambah Kategori Baru</a>

@@ -1,11 +1,11 @@
 <p>
-  Enrolled Students: {{ course.get_member_count }} / {{ course.max_students }}
+  Siswa Terdaftar: {{ course.get_member_count }} / {{ course.max_students }}
 </p>
 {% if course.is_full %}
-<p><strong>This course is full.</strong></p>
+<p><strong>Kursus ini sudah penuh.</strong></p>
 {% else %}
 <form method="POST">
   {% csrf_token %}
-  <button type="submit" class="btn btn-primary">Enroll</button>
+  <button type="submit" class="btn btn-primary">Daftar</button>
 </form>
 {% endif %}
